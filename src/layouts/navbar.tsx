@@ -3,12 +3,12 @@ import { createSignal } from "solid-js";
 import { useNavigate } from "solid-start";
 
 // components
-import List from "~/components/list";
+import ButtonList from "~/components/button-list";
 
 // icons
+import BrushIcon from "@suid/icons-material/Brush";
 import CalculateIcon from "@suid/icons-material/Calculate";
 import FunctionsIcon from "@suid/icons-material/Functions";
-import DrawIcon from "@suid/icons-material/Brush";
 import HomeIcon from "@suid/icons-material/Home";
 import MenuIcon from "@suid/icons-material/Menu";
 
@@ -29,7 +29,7 @@ export default function () {
 
 	// component layout
 	return (
-		<AppBar>
+		<AppBar position="static">
 			<Toolbar>
 				<IconButton onClick={openDrawer} color="inherit" edge="start" size="large">
 					<MenuIcon />
@@ -39,7 +39,7 @@ export default function () {
 				</Typography>
 			</Toolbar>
 			<Drawer onClose={closeDrawer} open={isOpen()}>
-				<List
+				<ButtonList
 					items={[
 						{
 							onClick: redirect("/"),
@@ -58,7 +58,7 @@ export default function () {
 						},
 						{
 							onClick: redirect("/calculate-area"),
-							icon: <DrawIcon />,
+							icon: <BrushIcon />,
 							name: "Calculate Area",
 						},
 					]}

@@ -25,10 +25,7 @@ export default function () {
 			</section>
 			<aside class="flex flex-1 flex-col gap-2 p-4">
 				<div class="p-4 shadow-md mr-auto">
-					<Button
-						onClick={() => controller.start((x: number) => x ** 2, 0, 9)}
-						color="success"
-					>
+					<Button onClick={() => controller.start()} color="success">
 						Start
 					</Button>
 					<Button onClick={() => controller.stop()} color="error">

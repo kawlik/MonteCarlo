@@ -1,61 +1,106 @@
-export default class CalculatePi {
-	private chart: HTMLCanvasElement;
-	private circle: HTMLCanvasElement;
+import { createRoot, createSignal } from "solid-js";
 
-	constructor(private parrent: HTMLDivElement) {
-		this.chart = document.createElement("canvas");
-		this.circle = document.createElement("canvas");
+// controllers
+import CanvasController from "./canvas";
+import RandomController from "./random";
+import ResultController from "./result";
 
-		// circle has to be under the chart
-		this.parrent.append(this.circle);
-		this.parrent.append(this.chart);
+export default class CalculatePiController {
+	public static readonly colorOut = "rgba(134, 187, 216, 0.3)";
+	public static readonly colorIn = "rgba(240, 84, 79, 0.6)";
 
-		window.addEventListener("resize", () => {
-			const width = this.parrent.clientWidth;
-			const height = this.parrent.clientHeight;
+	private chartRandom: CanvasController;
+	private chartResult: CanvasController;
+	private circle: CanvasController;
 
-			this.adjust(width, height);
-			this.update(width, height);
-		});
+	private random: RandomController;
+	private result: ResultController;
 
+	private frame: number = 0;
+	private anim: boolean = false;
+
+	private readonly signals = createRoot(function () {
+		const [pi, setPi] = createSignal(0);
+
+		return { pi, setPi };
+	});
+
+	constructor(private mainParent: Element, private sideParent: Element) {
+		this.circle = new CanvasController(this.mainParent);
+		this.chartRandom = new CanvasController(this.mainParent);
+		this.chartResult = new CanvasController(this.sideParent);
+
+		this.random = new RandomController(this.chartRandom.cvs);
+		this.result = new ResultController(this.chartResult.cvs);
+
+		// callbacks
+		this.circle.onUpdate = () => this.drawCircle();
+
+		// adjust
 		window.dispatchEvent(new Event("resize"));
 	}
 
-	private adjust(width: number, height: number): void {
-		this.adjustSize(this.chart, width, height);
-		this.adjustSize(this.circle, width, height);
-
-		this.adjustStyle(this.chart, width, height);
-		this.adjustStyle(this.circle, width, height);
+	public get pi() {
+		return this.signals.pi;
 	}
 
-	private adjustSize(cvs: HTMLCanvasElement, width: number, height: number): void {
-		cvs.width = width;
-		cvs.height = height;
+	public start(): void {
+		if (this.anim) return;
+
+		this.anim = true;
+
+		this.random.clear();
+		this.result.clear();
+
+		this.signals.setPi(0);
+
+		const animate = () => {
+			this.addNewRandomPoint();
+			this.addNewResultPoint();
+
+			this.random.update();
+			this.result.update();
+
+			this.frame = requestAnimationFrame(animate);
+		};
+
+		animate();
 	}
 
-	private adjustStyle(cvs: HTMLCanvasElement, width: number, height: number): void {
-		cvs.style.width = width + "px";
-		cvs.style.height = height + "px";
+	public stop(): void {
+		cancelAnimationFrame(this.frame);
 
-		// center relative to parrent
-		cvs.style.position = "absolute";
-		cvs.style.left = "50%";
-		cvs.style.top = "50%";
-
-		// center relative to center
-		cvs.style.transform = "translate(-50%, -50%)";
+		this.anim = false;
 	}
 
-	private update(width: number, height: number): void {
-		const circleCtx = this.circle.getContext("2d");
-		const circleRad = Math.max(width, height);
+	private addNewRandomPoint(): void {
+		const x = Math.random();
+		const y = Math.random();
+		const i = Math.sqrt((x - 0.5) ** 2 + (y - 0.5) ** 2) <= 0.5 ? 1 : 0;
 
-		if (!circleCtx) throw "Context is undefined!";
+		this.random.datasets[i].data.push({ x, y });
+	}
 
-		circleCtx.clearRect(0, 0, width, height);
-		circleCtx.roundRect(0, 0, width, height, circleRad);
-		circleCtx.fillStyle = "rgba(255, 63, 63, 1)";
-		circleCtx.fill();
+	private addNewResultPoint(): void {
+		const numIn = this.random.datasets[1].data.length;
+		const numOut = this.random.datasets[0].data.length;
+
+		const dt = numIn + numOut;
+		const pi = (4 * numIn) / dt;
+
+		this.result.datasets[0].data.push({ x: dt, y: pi });
+		this.signals.setPi(pi);
+	}
+
+	private drawCircle(): void {
+		const width = this.mainParent.clientWidth;
+		const height = this.mainParent.clientHeight;
+		const radius = Math.max(width, height);
+
+		this.circle.ctx.fillStyle = CalculatePiController.colorOut;
+		this.circle.ctx.fillRect(0, 0, width, height);
+		this.circle.ctx.roundRect(0, 0, width, height, radius);
+		this.circle.ctx.fillStyle = CalculatePiController.colorIn;
+		this.circle.ctx.fill();
 	}
 }

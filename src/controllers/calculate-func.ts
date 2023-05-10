@@ -14,6 +14,10 @@ export default class CalculateFuncController {
 
 	private frame?: number;
 
+	private eval?: (x: number) => number;
+	private minX: number = 0;
+	private maxX: number = 1;
+
 	private readonly signals = createRoot(function () {
 		const [int, setInt] = createSignal(0);
 
@@ -34,18 +38,49 @@ export default class CalculateFuncController {
 		return this.signals.int;
 	}
 
+	public set evaluator(func: (x: number) => number) {
+		this.reset();
+
+		this.eval = func;
+
+		this.drawer.draw(func, this.minX, this.maxX);
+		this.drawer.update();
+	}
+
+	public set x0(value: number) {
+		this.reset();
+
+		this.minX = value;
+	}
+
+	public set x1(value: number) {
+		this.reset();
+
+		this.maxX = value;
+	}
+
+	public reset(): void {
+		this.stop();
+
+		this.drawer.clear();
+		this.result.clear();
+
+		this.drawer.update();
+		this.result.update();
+
+		this.signals.setInt(0);
+	}
+
 	public start(): void {
 		if (this.frame) return;
-
-		const func = (x: number) => Math.sin(x);
-
-		this.drawer.draw(func, 0, Math.PI * 2);
-		this.drawer.update();
+		if (!this.eval) return;
 
 		this.result.clear();
 
 		const animate = () => {
-			this.addNewRandomPoint(func);
+			if (!this.eval) throw "Evaluator Func is undefined!";
+
+			this.addNewRandomPoint(this.eval);
 			this.addNewResultPoint();
 
 			this.drawer.update();
@@ -89,8 +124,8 @@ export default class CalculateFuncController {
 		const numPositive = numPositiveIn + numPositiveOut;
 		const numNegative = numNegativeIn + numNegativeOut;
 
-		const intPositive = (positive * numPositiveIn) / numPositive;
-		const intNegative = (negative * numNegativeIn) / numNegative;
+		const intPositive = (positive * numPositiveIn) / numPositive || 0;
+		const intNegative = (negative * numNegativeIn) / numNegative || 0;
 
 		const dt = numPositive + numNegative;
 		const int = intPositive + intNegative;

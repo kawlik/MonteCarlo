@@ -73,10 +73,11 @@ export default class DrawerController {
 	}
 
 	public draw(func: (x: number) => number, minX: number, maxX: number): void {
-		this.clear();
+		if (minX === maxX) return;
 
 		if (minX > maxX) [minX, maxX] = [maxX, minX];
 
+		this.clear();
 		let maxY = 0;
 		let minY = 0;
 

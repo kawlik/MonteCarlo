@@ -1,5 +1,6 @@
 import { Button, Input, Typography } from "@suid/material";
 import { createEffect, createSignal, onMount } from "solid-js";
+import { compile } from "mathjs";
 
 // controllers
 import CalculateFuncController from "~/controllers/calculate-func";
@@ -13,12 +14,15 @@ export default function () {
 	// component logic
 	let controller: CalculateFuncController;
 
+	const limit = 100;
+	const regex = new RegExp(/^f\(x\) = .*/);
+
 	const [int, setInt] = createSignal(0);
 	const [err, setErr] = createSignal(false);
 
 	const [x0, setX0] = createSignal(0);
 	const [x1, setX1] = createSignal(1);
-	const [fn, setFn] = createSignal("");
+	const [fn, setFn] = createSignal("f(x) = x");
 
 	onMount(() => {
 		const mainParent = document.querySelector("#mainParent")!;
@@ -28,15 +32,26 @@ export default function () {
 
 		createEffect(() => setInt(controller.int()));
 		createEffect(() => {
-			const limit = 100;
-			const regfn = new RegExp(/^f\(x\) = .*/);
+			if (x0() > limit || x0() < -limit) return setErr(true);
+			if (x1() > limit || x1() < -limit) return setErr(true);
 
-			if (x0() > limit || x0() < -limit) return setErr(false);
-			if (x1() > limit || x1() < -limit) return setErr(false);
+			if (!regex.test(fn())) return setErr(true);
 
-			if (!regfn.test(fn())) return setErr(false);
+			try {
+				const code = compile(fn());
+				const func = code.evaluate();
 
-			setErr(true);
+				const test1 = func(x0());
+				const test2 = func(x1());
+
+				controller.x0 = x0();
+				controller.x1 = x1();
+				controller.evaluator = func;
+
+				setErr(false);
+			} catch {
+				setErr(true);
+			}
 		});
 	});
 
@@ -52,7 +67,7 @@ export default function () {
 						<Button
 							onClick={() => controller.start()}
 							color="success"
-							disabled={!err()}
+							disabled={err()}
 						>
 							Start
 						</Button>

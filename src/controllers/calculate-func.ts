@@ -75,6 +75,7 @@ export default class CalculateFuncController {
 		if (this.frame) return;
 		if (!this.eval) return;
 
+		this.drawer.clear();
 		this.result.clear();
 
 		const animate = () => {

@@ -38,7 +38,7 @@ export default class DrawerController {
 						type: "line",
 						pointRadius: 0,
 						animation: {
-							duration: 0,
+							// duration: 0,
 						},
 					},
 				],
@@ -81,6 +81,8 @@ export default class DrawerController {
 		let maxY = 0;
 		let minY = 0;
 
+		this.chart.data.datasets[4].data = [];
+
 		for (let x = minX; x <= maxX; x += (maxX - minX) / 1000) {
 			const y = func(x);
 
@@ -98,7 +100,6 @@ export default class DrawerController {
 		this.chart.data.datasets[1].data = [];
 		this.chart.data.datasets[2].data = [];
 		this.chart.data.datasets[3].data = [];
-		this.chart.data.datasets[4].data = [];
 	}
 
 	public update(): void {

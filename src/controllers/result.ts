@@ -27,14 +27,6 @@ export default class ResultController {
 						display: false,
 					},
 				},
-				scales: {
-					x: {
-						min: 0,
-					},
-					y: {
-						min: 0,
-					},
-				},
 			},
 		});
 	}

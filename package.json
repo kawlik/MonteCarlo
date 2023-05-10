@@ -23,6 +23,7 @@
 		"@suid/icons-material": "^0.6.1",
 		"@suid/material": "^0.12.1",
 		"chart.js": "^4.3.0",
+		"mathjs": "^11.8.0",
 		"solid-js": "^1.7.2",
 		"solid-start": "^0.2.26",
 		"undici": "^5.15.1"

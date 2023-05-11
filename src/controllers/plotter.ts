@@ -1,6 +1,6 @@
 import Chart from "chart.js/auto";
 
-export default class DrawerController {
+export default class PlotterController {
 	private chart: Chart;
 
 	private min_x: number = 0;
@@ -72,7 +72,7 @@ export default class DrawerController {
 		return this.max_y;
 	}
 
-	public draw(func: (x: number) => number, minX: number, maxX: number): void {
+	public plot(func: (x: number) => number, minX: number, maxX: number): void {
 		if (minX === maxX) return;
 
 		if (minX > maxX) [minX, maxX] = [maxX, minX];

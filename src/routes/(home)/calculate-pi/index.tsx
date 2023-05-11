@@ -26,16 +26,16 @@ export default function () {
 				<div class="aspect-square relative shadow-md" id="mainParent" />
 			</section>
 			<aside class="flex flex-1 flex-col gap-2 p-4">
-				<div class="p-4 shadow-md mr-auto">
+				<div class="flex flex-nowrap gap-2 p-4 shadow-md">
 					<Button onClick={() => controller.start()} color="success">
 						Start
 					</Button>
 					<Button onClick={() => controller.stop()} color="error">
 						Stop
 					</Button>
-				</div>
-				<div class="p-4 shadow-md mr-0">
-					<Typography variant="h6">PI value is: {pi().toFixed(4)}</Typography>
+					<Typography my={"auto"} variant="subtitle1">
+						PI value is: {pi().toFixed(4)}
+					</Typography>
 				</div>
 				<div class="aspect-square relative shadow-md" id="sideParent" />
 			</aside>

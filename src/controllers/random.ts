@@ -30,13 +30,12 @@ export default class RandomController {
 				scales: {
 					x: {
 						display: false,
-						min: 0,
+						min: -1,
 						max: 1,
 					},
 					y: {
-						reverse: true,
 						display: false,
-						min: 0,
+						min: -1,
 						max: 1,
 					},
 				},

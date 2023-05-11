@@ -10,7 +10,7 @@ export default function () {
 	return (
 		<Html lang="en">
 			<Head>
-				<Title>Monete Catlo</Title>
+				<Title>Monte Carlo</Title>
 				<Meta charset="utf-8" />
 				<Meta name="viewport" content="width=device-width, initial-scale=1" />
 			</Head>

@@ -6,8 +6,8 @@ import RandomController from "./random";
 import ResultController from "./result";
 
 export default class CalculatePiController {
-	public static readonly colorOut = "rgba(134, 187, 216, 0.3)";
-	public static readonly colorIn = "rgba(240, 84, 79, 0.6)";
+	public static readonly colorOut = "#BAD7F2";
+	public static readonly colorIn = "#F2BAC9";
 
 	private chartRandom: CanvasController;
 	private chartResult: CanvasController;
@@ -74,11 +74,15 @@ export default class CalculatePiController {
 	}
 
 	private addNewRandomPoint(): void {
-		const x = Math.random();
-		const y = Math.random();
-		const i = Math.sqrt((x - 0.5) ** 2 + (y - 0.5) ** 2) <= 0.5 ? 1 : 0;
+		const x = Math.random() * 2 - 1;
+		const y = Math.random() * 2 - 1;
+		const i = Math.sqrt(x ** 2 + y ** 2) <= 1 ? 1 : 0;
 
-		this.random.datasets[i].data.push({ x, y });
+		if (Math.sqrt(x ** 2 + y ** 2) > 1) {
+			this.random.datasets[0].data.push({ x, y });
+		} else {
+			this.random.datasets[1].data.push({ x, y });
+		}
 	}
 
 	private addNewResultPoint(): void {

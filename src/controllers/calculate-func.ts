@@ -2,14 +2,14 @@ import { createRoot, createSignal } from "solid-js";
 
 // controllers
 import CanvasController from "./canvas";
-import DrawerController from "./drawer";
+import PlotterController from "./plotter";
 import ResultController from "./result";
 
 export default class CalculateFuncController {
 	private chartDrawer: CanvasController;
 	private chartResult: CanvasController;
 
-	private drawer: DrawerController;
+	private plotter: PlotterController;
 	private result: ResultController;
 
 	private frame?: number;
@@ -28,7 +28,7 @@ export default class CalculateFuncController {
 		this.chartDrawer = new CanvasController(this.mainParent);
 		this.chartResult = new CanvasController(this.sideParent);
 
-		this.drawer = new DrawerController(this.chartDrawer.cvs);
+		this.plotter = new PlotterController(this.chartDrawer.cvs);
 		this.result = new ResultController(this.chartResult.cvs);
 
 		window.dispatchEvent(new Event("resize"));
@@ -43,8 +43,8 @@ export default class CalculateFuncController {
 
 		this.eval = func;
 
-		this.drawer.draw(func, this.minX, this.maxX);
-		this.drawer.update();
+		this.plotter.plot(func, this.minX, this.maxX);
+		this.plotter.update();
 	}
 
 	public set x0(value: number) {
@@ -62,10 +62,10 @@ export default class CalculateFuncController {
 	public reset(): void {
 		this.stop();
 
-		this.drawer.clear();
+		this.plotter.clear();
 		this.result.clear();
 
-		this.drawer.update();
+		this.plotter.update();
 		this.result.update();
 
 		this.signals.setInt(0);
@@ -75,7 +75,7 @@ export default class CalculateFuncController {
 		if (this.frame) return;
 		if (!this.eval) return;
 
-		this.drawer.clear();
+		this.plotter.clear();
 		this.result.clear();
 
 		const animate = () => {
@@ -84,7 +84,7 @@ export default class CalculateFuncController {
 			this.addNewRandomPoint(this.eval);
 			this.addNewResultPoint();
 
-			this.drawer.update();
+			this.plotter.update();
 			this.result.update();
 
 			this.frame = requestAnimationFrame(animate);
@@ -102,25 +102,31 @@ export default class CalculateFuncController {
 	}
 
 	private addNewRandomPoint(func: (x: number) => number): void {
-		const x = this.uniform(this.drawer.minX, this.drawer.maxX);
-		const y = this.uniform(this.drawer.minY, this.drawer.maxY);
+		const x = this.uniform(this.plotter.minX, this.plotter.maxX);
+		const y = this.uniform(this.plotter.minY, this.plotter.maxY);
 
 		const v = func(x);
 
-		if (y > 0 && y > v) this.drawer.datasets[0].data.push({ x, y });
-		if (y > 0 && y < v) this.drawer.datasets[1].data.push({ x, y });
-		if (y < 0 && y > v) this.drawer.datasets[2].data.push({ x, y });
-		if (y < 0 && y < v) this.drawer.datasets[3].data.push({ x, y });
+		if (y > 0 && y > v) this.plotter.datasets[0].data.push({ x, y });
+		if (y > 0 && y < v) this.plotter.datasets[1].data.push({ x, y });
+		if (y < 0 && y > v) this.plotter.datasets[2].data.push({ x, y });
+		if (y < 0 && y < v) this.plotter.datasets[3].data.push({ x, y });
 	}
 
 	private addNewResultPoint(): void {
-		const numPositiveOut = this.drawer.datasets[0].data.length;
-		const numPositiveIn = this.drawer.datasets[1].data.length;
-		const numNegativeIn = this.drawer.datasets[2].data.length;
-		const numNegativeOut = this.drawer.datasets[3].data.length;
+		const numPositiveOut = this.plotter.datasets[0].data.length;
+		const numPositiveIn = this.plotter.datasets[1].data.length;
+		const numNegativeIn = this.plotter.datasets[2].data.length;
+		const numNegativeOut = this.plotter.datasets[3].data.length;
 
-		const positive = Math.max((this.drawer.maxX - this.drawer.minX) * this.drawer.maxY, 0);
-		const negative = Math.min((this.drawer.maxX - this.drawer.minX) * this.drawer.minY, 0);
+		const positive = Math.max(
+			(this.plotter.maxX - this.plotter.minX) * this.plotter.maxY,
+			0
+		);
+		const negative = Math.min(
+			(this.plotter.maxX - this.plotter.minX) * this.plotter.minY,
+			0
+		);
 
 		const numPositive = numPositiveIn + numPositiveOut;
 		const numNegative = numNegativeIn + numNegativeOut;

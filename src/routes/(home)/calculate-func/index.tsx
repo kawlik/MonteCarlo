@@ -62,47 +62,41 @@ export default function () {
 				<div class="aspect-square relative shadow-md" id="mainParent" />
 			</section>
 			<aside class="flex flex-1 flex-col gap-2 p-4">
-				<div class="flex flex-1 flex-nowrap gap-2">
-					<div class="p-4 shadow-md">
-						<Button
-							onClick={() => controller.start()}
-							color="success"
-							disabled={err()}
-						>
-							Start
-						</Button>
-						<Button onClick={() => controller.stop()} color="error">
-							Stop
-						</Button>
-					</div>
-					<div class="flex flex-1 flex-nowrap gap-2 p-4 shadow-md">
-						<Input
-							onChange={(e) => setX0(+e.target.value)}
-							placeholder="Min"
-							sx={{ width: 96 }}
-							type="number"
-							value={x0()}
-							startAdornment={<FormatToLIcon fontSize="small" />}
-						/>
-						<Input
-							onChange={(e) => setX1(+e.target.value)}
-							placeholder="Max"
-							sx={{ width: 96 }}
-							type="number"
-							value={x1()}
-							startAdornment={<FormatToRIcon fontSize="small" />}
-						/>
-						<Input
-							onChange={(e) => setFn(e.target.value)}
-							fullWidth={true}
-							placeholder="f(x) = "
-							startAdornment={<FunctionsIcon fontSize="small" />}
-							value={fn()}
-						/>
-					</div>
+				<div class="flex flex-nowrap gap-2 p-4 shadow-md">
+					<Button onClick={() => controller.start()} color="success" disabled={err()}>
+						Start
+					</Button>
+					<Button onClick={() => controller.stop()} color="error">
+						Stop
+					</Button>
+					<Typography my={"auto"} variant="subtitle1">
+						Inegral value is: {int().toFixed(4)}
+					</Typography>
 				</div>
-				<div class="p-4 shadow-md mr-0">
-					<Typography variant="h6">Inegral value is: {int().toFixed(4)}</Typography>
+				<div class="flex flex-nowrap gap-2 p-4 shadow-md">
+					<Input
+						onChange={(e) => setX0(+e.target.value)}
+						placeholder="Min"
+						sx={{ width: 96 }}
+						type="number"
+						value={x0()}
+						startAdornment={<FormatToLIcon fontSize="small" />}
+					/>
+					<Input
+						onChange={(e) => setX1(+e.target.value)}
+						placeholder="Max"
+						sx={{ width: 96 }}
+						type="number"
+						value={x1()}
+						startAdornment={<FormatToRIcon fontSize="small" />}
+					/>
+					<Input
+						onChange={(e) => setFn(e.target.value)}
+						fullWidth={true}
+						placeholder="f(x) = "
+						startAdornment={<FunctionsIcon fontSize="small" />}
+						value={fn()}
+					/>
 				</div>
 				<div class="aspect-square relative shadow-md" id="sideParent" />
 			</aside>

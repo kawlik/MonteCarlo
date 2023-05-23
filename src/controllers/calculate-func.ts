@@ -6,11 +6,11 @@ import PlotterController from "./plotter";
 import ResultController from "./result";
 
 export default class CalculateFuncController {
-	private chartDrawer: CanvasController;
-	private chartResult: CanvasController;
+	private drawer: CanvasController;
+	private result: CanvasController;
 
-	private plotter: PlotterController;
-	private result: ResultController;
+	private chartPlotter: PlotterController;
+	private chartResult: ResultController;
 
 	private frame?: number;
 
@@ -25,11 +25,11 @@ export default class CalculateFuncController {
 	});
 
 	constructor(private mainParent: Element, private sideParent: Element) {
-		this.chartDrawer = new CanvasController(this.mainParent);
-		this.chartResult = new CanvasController(this.sideParent);
+		this.drawer = new CanvasController(this.mainParent);
+		this.result = new CanvasController(this.sideParent);
 
-		this.plotter = new PlotterController(this.chartDrawer.cvs);
-		this.result = new ResultController(this.chartResult.cvs);
+		this.chartPlotter = new PlotterController(this.drawer.cvs);
+		this.chartResult = new ResultController(this.result.cvs);
 
 		window.dispatchEvent(new Event("resize"));
 	}
@@ -43,8 +43,8 @@ export default class CalculateFuncController {
 
 		this.eval = func;
 
-		this.plotter.plot(func, this.minX, this.maxX);
-		this.plotter.update();
+		this.chartPlotter.plot(func, this.minX, this.maxX);
+		this.chartPlotter.update();
 	}
 
 	public set x0(value: number) {
@@ -62,11 +62,11 @@ export default class CalculateFuncController {
 	public reset(): void {
 		this.stop();
 
-		this.plotter.clear();
-		this.result.clear();
+		this.chartPlotter.clear();
+		this.chartResult.clear();
 
-		this.plotter.update();
-		this.result.update();
+		this.chartPlotter.update();
+		this.chartResult.update();
 
 		this.signals.setInt(0);
 	}
@@ -75,8 +75,8 @@ export default class CalculateFuncController {
 		if (this.frame) return;
 		if (!this.eval) return;
 
-		this.plotter.clear();
-		this.result.clear();
+		this.chartPlotter.clear();
+		this.chartResult.clear();
 
 		const animate = () => {
 			if (!this.eval) throw "Evaluator Func is undefined!";
@@ -84,8 +84,8 @@ export default class CalculateFuncController {
 			this.addNewRandomPoint(this.eval);
 			this.addNewResultPoint();
 
-			this.plotter.update();
-			this.result.update();
+			this.chartPlotter.update();
+			this.chartResult.update();
 
 			this.frame = requestAnimationFrame(animate);
 		};
@@ -102,29 +102,29 @@ export default class CalculateFuncController {
 	}
 
 	private addNewRandomPoint(func: (x: number) => number): void {
-		const x = this.uniform(this.plotter.minX, this.plotter.maxX);
-		const y = this.uniform(this.plotter.minY, this.plotter.maxY);
+		const x = this.uniform(this.chartPlotter.minX, this.chartPlotter.maxX);
+		const y = this.uniform(this.chartPlotter.minY, this.chartPlotter.maxY);
 
 		const v = func(x);
 
-		if (y > 0 && y > v) this.plotter.datasets[0].data.push({ x, y });
-		if (y > 0 && y < v) this.plotter.datasets[1].data.push({ x, y });
-		if (y < 0 && y > v) this.plotter.datasets[2].data.push({ x, y });
-		if (y < 0 && y < v) this.plotter.datasets[3].data.push({ x, y });
+		if (y > 0 && y > v) this.chartPlotter.datasets[0].data.push({ x, y });
+		if (y > 0 && y < v) this.chartPlotter.datasets[1].data.push({ x, y });
+		if (y < 0 && y > v) this.chartPlotter.datasets[2].data.push({ x, y });
+		if (y < 0 && y < v) this.chartPlotter.datasets[3].data.push({ x, y });
 	}
 
 	private addNewResultPoint(): void {
-		const numPositiveOut = this.plotter.datasets[0].data.length;
-		const numPositiveIn = this.plotter.datasets[1].data.length;
-		const numNegativeIn = this.plotter.datasets[2].data.length;
-		const numNegativeOut = this.plotter.datasets[3].data.length;
+		const numPositiveOut = this.chartPlotter.datasets[0].data.length;
+		const numPositiveIn = this.chartPlotter.datasets[1].data.length;
+		const numNegativeIn = this.chartPlotter.datasets[2].data.length;
+		const numNegativeOut = this.chartPlotter.datasets[3].data.length;
 
 		const positive = Math.max(
-			(this.plotter.maxX - this.plotter.minX) * this.plotter.maxY,
+			(this.chartPlotter.maxX - this.chartPlotter.minX) * this.chartPlotter.maxY,
 			0
 		);
 		const negative = Math.min(
-			(this.plotter.maxX - this.plotter.minX) * this.plotter.minY,
+			(this.chartPlotter.maxX - this.chartPlotter.minX) * this.chartPlotter.minY,
 			0
 		);
 
@@ -137,7 +137,7 @@ export default class CalculateFuncController {
 		const dt = numPositive + numNegative;
 		const int = intPositive + intNegative;
 
-		this.result.datasets[0].data.push({ x: dt, y: int });
+		this.chartResult.datasets[0].data.push({ x: dt, y: int });
 		this.signals.setInt(int);
 	}
 

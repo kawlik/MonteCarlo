@@ -6,16 +6,16 @@ import ResultController from "./result";
 import DrawerController from "./drawer";
 
 export default class CalculateAreaController {
-	private chartResult: CanvasController;
-
+	private result: CanvasController;
 	private drawer: DrawerController;
-	private result: ResultController;
+
+	private chartResult: ResultController;
 
 	constructor(private mainParent: Element, private sideParent: Element) {
-		this.chartResult = new CanvasController(this.sideParent);
-
+		this.result = new CanvasController(this.sideParent);
 		this.drawer = new DrawerController(this.mainParent);
-		this.result = new ResultController(this.chartResult.cvs);
+
+		this.chartResult = new ResultController(this.result.cvs);
 
 		window.dispatchEvent(new Event("resize"));
 	}

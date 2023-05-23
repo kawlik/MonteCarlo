@@ -9,12 +9,12 @@ export default class CalculatePiController {
 	public static readonly colorOut = "#BAD7F2";
 	public static readonly colorIn = "#F2BAC9";
 
-	private chartRandom: CanvasController;
-	private chartResult: CanvasController;
+	private random: CanvasController;
+	private result: CanvasController;
 	private circle: CanvasController;
 
-	private random: RandomController;
-	private result: ResultController;
+	private chartRandom: RandomController;
+	private chartResult: ResultController;
 
 	private frame: number = 0;
 	private anim: boolean = false;
@@ -27,11 +27,11 @@ export default class CalculatePiController {
 
 	constructor(private mainParent: Element, private sideParent: Element) {
 		this.circle = new CanvasController(this.mainParent);
-		this.chartRandom = new CanvasController(this.mainParent);
-		this.chartResult = new CanvasController(this.sideParent);
+		this.random = new CanvasController(this.mainParent);
+		this.result = new CanvasController(this.sideParent);
 
-		this.random = new RandomController(this.chartRandom.cvs);
-		this.result = new ResultController(this.chartResult.cvs);
+		this.chartRandom = new RandomController(this.random.cvs);
+		this.chartResult = new ResultController(this.result.cvs);
 
 		// callbacks
 		this.circle.onUpdate = () => this.drawCircle();
@@ -49,8 +49,8 @@ export default class CalculatePiController {
 
 		this.anim = true;
 
-		this.random.clear();
-		this.result.clear();
+		this.chartRandom.clear();
+		this.chartResult.clear();
 
 		this.signals.setPi(0);
 
@@ -58,8 +58,8 @@ export default class CalculatePiController {
 			this.addNewRandomPoint();
 			this.addNewResultPoint();
 
-			this.random.update();
-			this.result.update();
+			this.chartRandom.update();
+			this.chartResult.update();
 
 			this.frame = requestAnimationFrame(animate);
 		};
@@ -79,20 +79,20 @@ export default class CalculatePiController {
 		const i = Math.sqrt(x ** 2 + y ** 2) <= 1 ? 1 : 0;
 
 		if (Math.sqrt(x ** 2 + y ** 2) > 1) {
-			this.random.datasets[0].data.push({ x, y });
+			this.chartRandom.datasets[0].data.push({ x, y });
 		} else {
-			this.random.datasets[1].data.push({ x, y });
+			this.chartRandom.datasets[1].data.push({ x, y });
 		}
 	}
 
 	private addNewResultPoint(): void {
-		const numIn = this.random.datasets[1].data.length;
-		const numOut = this.random.datasets[0].data.length;
+		const numIn = this.chartRandom.datasets[1].data.length;
+		const numOut = this.chartRandom.datasets[0].data.length;
 
 		const dt = numIn + numOut;
 		const pi = (4 * numIn) / dt;
 
-		this.result.datasets[0].data.push({ x: dt, y: pi });
+		this.chartResult.datasets[0].data.push({ x: dt, y: pi });
 		this.signals.setPi(pi);
 	}
 

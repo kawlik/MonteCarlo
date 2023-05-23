@@ -2,12 +2,16 @@ import CanvasController from "../canvas";
 import SurfaceController from "./surface";
 
 export default class OverlayController {
+	public static readonly colorOut = "#BAD7F2";
+	public static readonly colorIn = "#F2BAC9";
+
 	private canvas: CanvasController;
 
 	private offsetR: number = 0.01;
 	private offsetX: number = 0;
 	private offsetY: number = 0;
 
+	private isAltLeft: boolean = false;
 	private isDrawing: boolean = false;
 
 	constructor(private mainParent: Element, private surface: SurfaceController) {
@@ -15,6 +19,14 @@ export default class OverlayController {
 		this.canvas.cvs.style.cursor = "none";
 
 		// event listeners
+		window.addEventListener("keydown", (e) => {
+			if (e.code === "AltLeft") this.isAltLeft = true;
+		});
+
+		window.addEventListener("keyup", (e) => {
+			if (e.code === "AltLeft") this.isAltLeft = false;
+		});
+
 		this.canvas.cvs.addEventListener("mousedown", () => {
 			this.isDrawing = true;
 
@@ -84,13 +96,13 @@ export default class OverlayController {
 		this.canvas.ctx.stroke();
 	}
 
-	private drawCircle(ctx: CanvasRenderingContext2D, color = "#F2BAC9"): void {
+	private drawCircle(ctx: CanvasRenderingContext2D): void {
 		const r = this.offsetR * this.canvas.cvs.width;
 		const x = this.offsetX * this.canvas.cvs.width;
 		const y = this.offsetY * this.canvas.cvs.height;
 
 		ctx.beginPath();
-		ctx.fillStyle = color;
+		ctx.fillStyle = this.isAltLeft ? OverlayController.colorOut : OverlayController.colorIn;
 		ctx.roundRect(x - r, y - r, r * 2, r * 2, r);
 		ctx.fill();
 	}

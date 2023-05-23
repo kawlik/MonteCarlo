@@ -1,4 +1,5 @@
 import CanvasController from "../canvas";
+import SurfaceController from "./surface";
 
 export default class OverlayController {
 	private canvas: CanvasController;
@@ -7,23 +8,29 @@ export default class OverlayController {
 	private offsetX: number = 0;
 	private offsetY: number = 0;
 
-    private readonly controls = {
-        drawCircle: false,
-    };
+	private isDrawing: boolean = false;
 
-	constructor(private mainParent: Element) {
+	constructor(private mainParent: Element, private surface: SurfaceController) {
 		this.canvas = new CanvasController(this.mainParent);
 		this.canvas.cvs.style.cursor = "none";
 
 		// event listeners
+		this.canvas.cvs.addEventListener("mousedown", () => {
+			this.isDrawing = true;
+
+			this.drawClear();
+			this.drawBrush();
+		});
+
+		this.canvas.cvs.addEventListener("mouseup", () => {
+			this.isDrawing = false;
+		});
+
 		this.canvas.cvs.addEventListener("mouseenter", (e) => {
 			this.setMousePosition(e);
 
 			this.drawClear();
 			this.drawBrush();
-
-            this.canvas.cvs.onmousedown = () => this.controls.drawCircle = true;
-            this.canvas.cvs.onmouseup = () => this.controls.drawCircle = false;
 		});
 
 		this.canvas.cvs.addEventListener("mousemove", (e) => {
@@ -35,9 +42,6 @@ export default class OverlayController {
 
 		this.canvas.cvs.addEventListener("mouseleave", (e) => {
 			this.drawClear();
-
-            this.canvas.cvs.onmousedown = null;
-            this.canvas.cvs.onmouseup = null;
 		});
 
 		this.canvas.cvs.addEventListener("wheel", (e) => {
@@ -64,7 +68,10 @@ export default class OverlayController {
 	}
 
 	private drawBrush(): void {
-        if (this.controls.drawCircle) this.drawCircle();
+		if (this.isDrawing) {
+			this.drawCircle(this.surface.ctx);
+			this.drawCircle(this.canvas.ctx);
+		}
 
 		const r = this.offsetR * this.canvas.cvs.width;
 		const x = this.offsetX * this.canvas.cvs.width;
@@ -77,14 +84,14 @@ export default class OverlayController {
 		this.canvas.ctx.stroke();
 	}
 
-    private drawCircle(): void {
-        const r = this.offsetR * this.canvas.cvs.width;
+	private drawCircle(ctx: CanvasRenderingContext2D, color = "#F2BAC9"): void {
+		const r = this.offsetR * this.canvas.cvs.width;
 		const x = this.offsetX * this.canvas.cvs.width;
 		const y = this.offsetY * this.canvas.cvs.height;
-        
-        this.canvas.ctx.beginPath();
-		this.canvas.ctx.fillStyle = "#F2BAC9";
-        this.canvas.ctx.roundRect(x - r, y - r, r * 2, r * 2, r);
-        this.canvas.ctx.fill();
-    }
+
+		ctx.beginPath();
+		ctx.fillStyle = color;
+		ctx.roundRect(x - r, y - r, r * 2, r * 2, r);
+		ctx.fill();
+	}
 }

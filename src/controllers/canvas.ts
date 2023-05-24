@@ -4,9 +4,11 @@ export default class CanvasController {
 
 	private callback?: () => void;
 
-	constructor(private parrent: Element) {
+	constructor(private parrent: Element, willReadFrequently = false) {
 		this.canvas = this.parrent.appendChild(document.createElement("canvas"));
-		this.context = this.canvas.getContext("2d")!;
+		this.context = this.canvas.getContext("2d", {
+			willReadFrequently,
+		})!;
 
 		window.addEventListener("resize", () => {
 			this.adjust();

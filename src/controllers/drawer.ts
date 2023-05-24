@@ -7,28 +7,26 @@ export default class DrawerController {
 	private overlay: CanvasController;
 	private surface: CanvasController;
 
+	private callback?: () => void;
+
+	private readonly modes = {
+		drawing: false,
+		inverse: false,
+	};
+
 	private readonly mouse = {
 		r: 0.01,
 		x: 0,
 		y: 0,
 	};
 
-	private readonly stage = {
-		drawing: false,
-		inverse: false,
-	};
-
 	constructor(private mainParent: Element) {
 		// overlay has to be on top
-		this.surface = new CanvasController(this.mainParent);
+		this.surface = new CanvasController(this.mainParent, true);
 		this.overlay = new CanvasController(this.mainParent);
 
 		this.overlay.cvs.style.cursor = "none";
 		this.surface.cvs.style.cursor = "none";
-
-		// key events
-		this.overlay.cvs.addEventListener("keydown", (e) => {});
-		this.overlay.cvs.addEventListener("keydup", (e) => {});
 
 		// mouse events
 		this.overlay.cvs.addEventListener("mouseenter", (e) => {
@@ -47,14 +45,14 @@ export default class DrawerController {
 
 		// press events
 		this.overlay.cvs.addEventListener("mousedown", () => {
-			this.stage.drawing = true;
+			this.modes.drawing = true;
 
 			this.clearOverlay();
 			this.drawBrush();
 		});
 
 		this.overlay.cvs.addEventListener("mouseup", () => {
-			this.stage.drawing = false;
+			this.modes.drawing = false;
 		});
 
 		// wheel events
@@ -67,10 +65,38 @@ export default class DrawerController {
 		});
 
 		// window events
+		window.addEventListener("keydown", (e) => {
+			if (e.code === "ShiftLeft") this.modes.inverse = true;
+		});
+
+		window.addEventListener("keyup", (e) => {
+			if (e.code === "ShiftLeft") this.modes.inverse = false;
+		});
+
 		window.addEventListener("resize", (e) => {
 			this.clearOverlay();
 			this.clearSurface();
 		});
+	}
+
+	public set onUpdate(callback: () => void) {
+		this.callback = callback;
+	}
+
+	public getPixelData(x: number, y: number): 0 | 1 {
+		x = Math.floor(x * this.surface.cvs.width);
+		y = Math.floor(y * this.surface.cvs.height);
+
+		const data = this.surface.ctx.getImageData(x, y, 1, 1).data;
+
+		// test exact colors
+		if (data[0] === 0xba && data[1] === 0xd7 && data[2] === 0xf2) return 0;
+		if (data[0] === 0xf2 && data[1] === 0xba && data[2] === 0xc9) return 1;
+
+		const d1 = (data[0] - 0xba) ** 2 + (data[1] - 0xd7) ** 2 + (data[2] - 0xf2) ** 2;
+		const d2 = (data[0] - 0xf2) ** 2 + (data[1] - 0xba) ** 2 + (data[2] - 0xc9) ** 2;
+
+		return d1 < d2 ? 0 : 1;
 	}
 
 	private clearOverlay(): void {
@@ -83,14 +109,17 @@ export default class DrawerController {
 	}
 
 	private drawBrush(): void {
-		if (this.stage.drawing) {
+		if (this.modes.drawing) {
 			this.drawCircle(this.surface);
 			this.drawCircle(this.overlay);
+
+			// notify on content update
+			if (!!this.callback) this.callback();
 		}
 
 		const r = this.mouse.r * this.overlay.cvs.width;
-		const x = this.mouse.x * this.overlay.cvs.width;
-		const y = this.mouse.y * this.overlay.cvs.height;
+		const x = this.mouse.x;
+		const y = this.mouse.y;
 
 		this.overlay.ctx.beginPath();
 		this.overlay.ctx.lineWidth = 3;
@@ -101,19 +130,21 @@ export default class DrawerController {
 
 	private drawCircle(canvas: CanvasController): void {
 		const r = this.mouse.r * canvas.cvs.width;
-		const x = this.mouse.x * canvas.cvs.width;
-		const y = this.mouse.y * canvas.cvs.height;
+		const x = this.mouse.x;
+		const y = this.mouse.y;
+
+		const color = this.modes.inverse ? DrawerController.colorOut : DrawerController.colorIn;
 
 		canvas.ctx.beginPath();
-		canvas.ctx.fillStyle = DrawerController.colorIn;
+		canvas.ctx.fillStyle = color;
 		canvas.ctx.roundRect(x - r, y - r, r * 2, r * 2, r);
 		canvas.ctx.fill();
 	}
 
 	private setMousePosition(e: MouseEvent): void {
-		const { top, left, width, height } = this.surface.cvs.getClientRects()[0];
+		const { top, left } = this.surface.cvs.getBoundingClientRect();
 
-		this.mouse.x = (e.clientX - left) / width;
-		this.mouse.y = (e.clientY - top) / height;
+		this.mouse.x = e.clientX - left;
+		this.mouse.y = e.clientY - top;
 	}
 }

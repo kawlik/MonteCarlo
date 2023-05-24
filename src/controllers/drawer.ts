@@ -43,6 +43,10 @@ export default class DrawerController {
 			this.drawBrush();
 		});
 
+		this.overlay.cvs.addEventListener("mouseleave", () => {
+			this.clearOverlay();
+		});
+
 		// press events
 		this.overlay.cvs.addEventListener("mousedown", () => {
 			this.modes.drawing = true;

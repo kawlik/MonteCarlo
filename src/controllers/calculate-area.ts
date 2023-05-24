@@ -4,23 +4,97 @@ import { createRoot, createSignal } from "solid-js";
 import CanvasController from "./canvas";
 import ResultController from "./result";
 import DrawerController from "./drawer";
+import RandomController from "./random";
 
 export default class CalculateAreaController {
-	private result: CanvasController;
 	private drawer: DrawerController;
+	private random: CanvasController;
+	private result: CanvasController;
 
+	private chartRandom: RandomController;
 	private chartResult: ResultController;
 
-	constructor(private mainParent: Element, private sideParent: Element) {
-		this.result = new CanvasController(this.sideParent);
-		this.drawer = new DrawerController(this.mainParent);
+	private frame: number = 0;
+	private anim: boolean = false;
 
+	private readonly signals = createRoot(function () {
+		const [area, setArea] = createSignal(0);
+
+		return { area, setArea };
+	});
+
+	constructor(private mainParent: Element, private sideParent: Element) {
+		this.drawer = new DrawerController(this.mainParent);
+		this.random = new CanvasController(this.mainParent);
+		this.result = new CanvasController(this.sideParent);
+
+		this.chartRandom = new RandomController(this.random.cvs);
 		this.chartResult = new ResultController(this.result.cvs);
+
+		this.drawer.onUpdate = () => this.stop();
+		this.hideRandomChart();
 
 		window.dispatchEvent(new Event("resize"));
 	}
 
-	public start(): void {}
+	public get area() {
+		return this.signals.area;
+	}
 
-	public stop(): void {}
+	public start(): void {
+		if (this.anim) return;
+
+		this.anim = true;
+
+		this.showRandomChart();
+		this.chartRandom.clear();
+		this.chartResult.clear();
+
+		this.signals.setArea(0);
+
+		const animate = () => {
+			this.addNewRandomPoint();
+			this.addNewResultPoint();
+
+			this.chartRandom.update();
+			this.chartResult.update();
+
+			this.frame = requestAnimationFrame(animate);
+		};
+
+		animate();
+	}
+
+	public stop(): void {
+		cancelAnimationFrame(this.frame);
+
+		this.hideRandomChart();
+		this.anim = false;
+	}
+
+	private addNewRandomPoint(): void {
+		const x = Math.random();
+		const y = Math.random();
+		const i = this.drawer.getPixelData(x, y);
+
+		this.chartRandom.datasets[i].data.push({ x, y: 1 - y });
+	}
+
+	private addNewResultPoint(): void {
+		const numIn = this.chartRandom.datasets[1].data.length;
+		const numOut = this.chartRandom.datasets[0].data.length;
+
+		const area = numIn / (numIn + numOut);
+
+		this.chartResult.datasets[0].data.push({ x: numIn + numOut, y: area });
+		this.signals.setArea(area);
+	}
+
+	private hideRandomChart(): void {
+		this.random.cvs.style.display = "none";
+	}
+
+	private showRandomChart(): void {
+		this.random.cvs.style.display = "block";
+	}
 }

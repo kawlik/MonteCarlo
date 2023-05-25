@@ -33,6 +33,9 @@ export default function () {
 					<Button onClick={() => controller.stop()} color="error">
 						Stop
 					</Button>
+					<Button onClick={() => controller.test()} color="info">
+						Test
+					</Button>
 					<Typography my={"auto"} variant="subtitle1">
 						Area value is: {area().toFixed(4)}
 					</Typography>

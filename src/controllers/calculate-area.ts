@@ -5,6 +5,7 @@ import CanvasController from "./canvas";
 import ResultController from "./result";
 import DrawerController from "./drawer";
 import RandomController from "./random";
+import Benchmark from "./benchmark";
 
 export default class CalculateAreaController {
 	private drawer: DrawerController;
@@ -72,10 +73,25 @@ export default class CalculateAreaController {
 		this.anim = false;
 	}
 
+	public test(): void {
+		this.stop();
+
+		const [time, value] = Benchmark.test(() => this.drawer.getTrueValue());
+
+		alert(`
+            *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *
+
+                 Time: ${time.toFixed(32)} ms
+                Value: ${value.toFixed(32)}
+
+            *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *
+        `);
+	}
+
 	private addNewRandomPoint(): void {
 		const x = Math.random();
 		const y = Math.random();
-		const i = this.drawer.getPixelData(x, y);
+		const i = this.drawer.getRelativeColor(x, y);
 
 		this.chartRandom.datasets[i].data.push({ x, y: 1 - y });
 	}

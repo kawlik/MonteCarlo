@@ -87,10 +87,52 @@ export default class DrawerController {
 		this.callback = callback;
 	}
 
-	public getPixelData(x: number, y: number): 0 | 1 {
+	public getTrueValue(): number {
+		const { width, height } = this.surface.cvs;
+
+		const data = this.surface.ctx.getImageData(0, 0, width, height).data;
+		const test = (idx: number): boolean => {
+			if (data[idx + 0] === 0xba && data[idx + 1] === 0xd7 && data[idx + 2] === 0xf2)
+				return false;
+
+			if (data[idx + 0] === 0xf2 && data[idx + 1] === 0xba && data[idx + 2] === 0xc9)
+				return true;
+
+			const d1 =
+				(data[idx + 0] - 0xba) ** 2 +
+				(data[idx + 1] - 0xd7) ** 2 +
+				(data[idx + 2] - 0xf2) ** 2;
+
+			const d2 =
+				(data[idx + 0] - 0xf2) ** 2 +
+				(data[idx + 1] - 0xba) ** 2 +
+				(data[idx + 2] - 0xc9) ** 2;
+
+			return d1 > d2;
+		};
+
+		let numIn = 0;
+		let numOut = 0;
+
+		for (let i = 0; i < data.length; i += 4) {
+			if (test(i)) {
+				numIn++;
+			} else {
+				numOut++;
+			}
+		}
+
+		return numIn / (numIn + numOut);
+	}
+
+	public getRelativeColor(x: number, y: number): 0 | 1 {
 		x = Math.floor(x * this.surface.cvs.width);
 		y = Math.floor(y * this.surface.cvs.height);
 
+		return this.getPixelColor(x, y);
+	}
+
+	private getPixelColor(x: number, y: number): 0 | 1 {
 		const data = this.surface.ctx.getImageData(x, y, 1, 1).data;
 
 		// test exact colors

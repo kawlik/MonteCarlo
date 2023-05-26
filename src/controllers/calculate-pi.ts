@@ -76,13 +76,9 @@ export default class CalculatePiController {
 	private addNewRandomPoint(): void {
 		const x = Math.random();
 		const y = Math.random();
-		const i = Math.sqrt((x - 0.5) ** 2 + (y - 0.5) ** 2) <= 1 ? 1 : 0;
+		const i = Math.sqrt((x - 0.5) ** 2 + (y - 0.5) ** 2) <= .5 ? 1 : 0;
 
-		if (Math.sqrt(x ** 2 + y ** 2) > 1) {
-			this.chartRandom.datasets[0].data.push({ x, y });
-		} else {
-			this.chartRandom.datasets[1].data.push({ x, y });
-		}
+        this.chartRandom.datasets[i].data.push({ x, y });
 	}
 
 	private addNewResultPoint(): void {

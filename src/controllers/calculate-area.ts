@@ -73,19 +73,16 @@ export default class CalculateAreaController {
 		this.anim = false;
 	}
 
-	public test(): void {
+	public test(): { name: string; time: number; value: number }[] {
 		this.stop();
 
-		const [time, value] = Benchmark.test(() => this.drawer.getTrueValue());
+		const [exactTime, exactValue] = Benchmark.test(() => this.drawer.getExactValue());
+		const [roughTime, roughValue] = Benchmark.test(() => this.drawer.getRoughValue());
 
-		alert(`
-            *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *
-
-                 Time: ${time.toFixed(32)} ms
-                Value: ${value.toFixed(32)}
-
-            *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *   *
-        `);
+		return [
+			{ name: "Exact", time: exactTime, value: exactValue },
+			{ name: "Rough", time: roughTime, value: roughValue },
+		];
 	}
 
 	private addNewRandomPoint(): void {

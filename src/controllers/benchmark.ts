@@ -1,5 +1,5 @@
 export default class Benchmark {
-	public static test(callback: () => number, n: number = 100): [number, number] {
+	public static test(callback: () => number, n: number = 1): [number, number] {
 		let t0 = 0;
 		let t1 = 0;
 

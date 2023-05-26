@@ -1,5 +1,5 @@
 import { Button, Typography } from "@suid/material";
-import { createEffect, createSignal, onMount } from "solid-js";
+import { createEffect, createSignal, onCleanup, onMount } from "solid-js";
 
 // controllers
 import CalculatePiController from "~/controllers/calculate-pi";
@@ -9,6 +9,8 @@ export default function () {
 	let controller: CalculatePiController;
 
 	const [pi, setPi] = createSignal(0);
+
+	onCleanup(() => controller.stop());
 
 	onMount(() => {
 		const mainParent = document.querySelector("#mainParent")!;

@@ -1,5 +1,5 @@
 import { Button, Input, Typography } from "@suid/material";
-import { createEffect, createSignal, onMount } from "solid-js";
+import { createEffect, createSignal, onCleanup, onMount } from "solid-js";
 import { compile } from "mathjs";
 
 // controllers
@@ -23,6 +23,8 @@ export default function () {
 	const [x0, setX0] = createSignal(0);
 	const [x1, setX1] = createSignal(1);
 	const [fn, setFn] = createSignal("f(x) = x");
+
+	onCleanup(() => controller.stop());
 
 	onMount(() => {
 		const mainParent = document.querySelector("#mainParent")!;

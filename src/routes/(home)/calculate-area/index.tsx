@@ -1,5 +1,5 @@
 import { Button, Modal, Typography } from "@suid/material";
-import { createEffect, createSignal, onMount } from "solid-js";
+import { createEffect, createSignal, onCleanup, onMount } from "solid-js";
 import Benchmark from "~/components/benchmark";
 
 // controllers
@@ -21,6 +21,8 @@ export default function () {
 
 	const closeModal = () => setOpen(false);
 	const openModal = () => setOpen(true);
+
+	onCleanup(() => controller.stop());
 
 	onMount(() => {
 		const mainParent = document.querySelector("#mainParent")!;

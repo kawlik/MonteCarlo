@@ -72,7 +72,7 @@ export default function () {
 						Stop
 					</Button>
 					<Typography my={"auto"} variant="subtitle1">
-						Inegral value is: {int().toFixed(4)}
+						Integral value is: {int().toFixed(4)}
 					</Typography>
 				</div>
 				<div class="flex flex-nowrap gap-2 p-4 shadow-md">

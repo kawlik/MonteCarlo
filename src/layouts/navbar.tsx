@@ -29,7 +29,7 @@ export default function () {
 
 	// component layout
 	return (
-		<AppBar position="static">
+		<AppBar position="sticky">
 			<Toolbar>
 				<IconButton onClick={openDrawer} color="inherit" edge="start" size="large">
 					<MenuIcon />

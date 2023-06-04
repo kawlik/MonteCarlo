@@ -14,7 +14,7 @@ export default function () {
 				<Meta charset="utf-8" />
 				<Meta name="viewport" content="width=device-width, initial-scale=1" />
 			</Head>
-			<Body class="w-screen h-screen overflow-hidden">
+			<Body class="w-screen h-screen overflow-x-hidden">
 				<Routes>
 					<FileRoutes />
 				</Routes>

@@ -30,7 +30,7 @@ export default function () {
 
 		controller = new CalculateAreaController(mainParent, sideParent);
 
-		createEffect(() => setArea(0));
+		createEffect(() => setArea(controller.area()));
 		createEffect(() => open() && setTest(controller.test()));
 	});
 
